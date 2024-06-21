@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма банковской карты</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: linear-gradient(rgb(168, 168, 243), rgb(151, 197, 114), rgb(128, 207, 190));
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .form-container {
+            width: 45%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            margin-top: 0;
+        }
+
+        .form-container label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        .form-container input,
+        .form-container select,
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-container button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+
+        .card-preview {
+            width: 45%;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            background: green;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-preview h3 {
+            margin: 0 0 10px;
+            color: white;
+        }
+
+        .card-preview .bank-name,
+        .card-preview .card-type,
+        .card-preview .card-number,
+        .card-preview .card-holder,
+        .card-preview .card-expiry {
+            margin: 10px 0;
+        }
+
+        .card-type img {
+            width: 50px;
+        }
+
+        .table-container {
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Информация о карте</h2>
+            <form id="cardForm">
+                <label for="bankName">Название банка:</label>
+                <input type="text" id="bankName" name="bankName" required>
+
+                <label for="cardType">Тип платежной системы:</label>
+                <select id="cardType" name="cardType" required>
+                    <option value="">Выберите тип</option>
+                    <option value="visa">Visa</option>
+                    <option value="mastercard">MasterCard</option>
+                    <option value="amex">American Express</option>
+                </select>
+
+                <label for="cardNumber">Номер карты (16 цифр):</label>
+                <input type="text" id="cardNumber" name="cardNumber" maxlength="16" pattern="\d{16}" required>
+
+                <label for="cardHolder">Имя держателя карты:</label>
+                <input type="text" id="cardHolder" name="cardHolder" required>
+
+                <label for="expiryMonth">Месяц окончания:</label>
+                <input type="text" id="expiryMonth" name="expiryMonth" maxlength="2" pattern="\d{2}" required>
+
+                <label for="expiryYear">Год окончания:</label>
+                <input type="text" id="expiryYear" name="expiryYear" maxlength="2" pattern="\d{2}" required>
+
+                <button type="submit">Добавить</button>
+            </form>
+        </div>
+
+        <div class="card-preview">
+            <h3>Превью карты</h3>
+            <div class="bank-name" id="previewBankName"></div>
+            <div class="card-type" id="previewCardType"></div>
+            <div class="card-number" id="previewCardNumber">0000 0000 0000 0000</div>
+            <div class="card-holder" id="previewCardHolder">Имя Держателя</div>
+            <div class="card-expiry" id="previewCardExpiry">MM/YY</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="cardsTable">
+            <thead>
+                <tr>
+                    <th>Название банка</th>
+                    <th>Тип платежной системы</th>
+                    <th>Номер карты</th>
+                    <th>Имя держателя карты</th>
+                    <th>Срок окончания</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const form = document.getElementById('cardForm');
+        const bankNameInput = document.getElementById('bankName');
+        const cardTypeInput = document.getElementById('cardType');
+        const cardNumberInput = document.getElementById('cardNumber');
+        const cardHolderInput = document.getElementById('cardHolder');
+        const expiryMonthInput = document.getElementById('expiryMonth');
+        const expiryYearInput = document.getElementById('expiryYear');
+
+        const previewBankName = document.getElementById('previewBankName');
+        const previewCardType = document.getElementById('previewCardType');
+        const previewCardNumber = document.getElementById('previewCardNumber');
+        const previewCardHolder = document.getElementById('previewCardHolder');
+        const previewCardExpiry = document.getElementById('previewCardExpiry');
+
+        form.addEventListener('input', function () {
+            previewBankName.textContent = bankNameInput.value;
+            previewCardType.innerHTML = getCardTypeLogo(cardTypeInput.value);
+            previewCardNumber.textContent = formatCardNumber(cardNumberInput.value);
+            previewCardHolder.textContent = cardHolderInput.value;
+            previewCardExpiry.textContent = ${ expiryMonthInput.value } /${expiryYearInput.value}; 
+        });
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            addCardToTable();
+            form.reset();
+            resetPreview();
+        });
+
+        function getCardTypeLogo(cardType) {
+            switch (cardType) {
+                case 'visa':
+                    return '<img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa">';
+                case 'mastercard':
+                    return '<img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="MasterCard">';
+                case 'amex':
+                    return '<img src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo_%282018%29.svg" alt="American Express">';
+                default:
+                    return '';
+            }
+        }
+
+        function formatCardNumber(number) {
+            return number.replace(/\d{4}(?=.)/g, '$& ');
+        }
+
+        function addCardToTable() {
+            const tableBody = document.querySelector('#cardsTable tbody');
+            const newRow = document.createElement('tr');
+
+            newRow.innerHTML = ` 
+            <td>${bankNameInput.value}</td> 
+            <td>${cardTypeInput.value}</td> 
+            <td>${formatCardNumber(cardNumberInput.value)}</td> 
+            <td>${cardHolderInput.value}</td> 
+            <td>${expiryMonthInput.value}/${expiryYearInput.value}</td> 
+        `;
+
+            tableBody.appendChild(newRow);
+        }
+
+        function resetPreview() {
+            previewBankName.textContent = '';
+            previewCardType.innerHTML = '';
+            previewCardNumber.textContent = '0000 0000 0000 0000';
+            previewCardHolder.textContent = 'Имя Держателя';
+            previewCardExpiry.textContent = 'MM/YY';
+        } 
+    </script>
+
+</body>
+
+</html>
